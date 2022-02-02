@@ -1,24 +1,24 @@
 from django.db import models
 from django.utils import timezone
-import datetime
 
-
-class Question(models.Model):
-    question_text = models.CharField(max_length=200)
-    pub_date = models.DateTimeField('date published')
+class Claster(models.Model):
+    NameClaster = models.CharField(max_length=100,)
 
     def __str__(self):
-        return self.question_text
+        return self.NameClaster
 
-    def was_published_recently(self):
-        return self.pub_date >= timezone.now() - datetime.timedelta(days =5)
-
-
-class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    choice_text = models.CharField(max_length=200)
-    votes = models.IntegerField(default=0)
+class Project(models.Model):
+    cluster = models.ForeignKey(
+        'Claster',
+        on_delete=models.CASCADE,
+    )
+    nameProject= models.CharField(max_length=60)
+    course = models.CharField(max_length=4)
+    discription = models.TextField()
+    jobs = models.TextField()
+    supervisor = models.CharField(max_length=150)
+    contact = models.CharField(max_length=110)
+    image = models.FileField(upload_to="путь")
 
     def __str__(self):
-        return self.choice_text
-
+        return self.nameProject

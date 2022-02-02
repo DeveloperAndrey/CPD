@@ -4,9 +4,11 @@ from . import views
 urlpatterns = [
     path('', views.index, name ='index'), #eg: /polls/
 
-    path('<int:question_id>/', views.detail, name='detail'), #eg: /polls/5/
+    path('claster', views.claster_all, name='claster'),
 
-    path('<int:question_id>/results/', views.results, name='results'), #eg /polls/5/results/
+    path('claster/<int:filter>', views.claster_filter, name='clasterFilter'),
 
-    path('<int:question_id>/vote/', views.vote, name='vote'), #eg /polls/5/vote/
+    path('project', views.project_all, name='project_all'),
+
+    path('project/<int:filter>', views.project_filter, name='project_filter'),
 ]

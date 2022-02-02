@@ -1,19 +1,34 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.core import serializers
+from django.http import JsonResponse, HttpResponse
+from django.contrib.auth import get_user_model
+from .models import Claster, Project
 
+from django.views.decorators.csrf import csrf_exempt
 
 def index(request):
-    return HttpResponse("Hello World, вы в polls")
+    User = get_user_model()
+    User.objects.create_superuser('admin', 'admin@gmail.com', 'admin')
+    return HttpResponse("Hello world, вы в polls")
 
+def claster_all(request):
+    clast = Claster.objects.all()
+    clast_json = serializers.serialize('json', clast)
+    return HttpResponse(clast_json, content_type='application/json')
 
-def detail(request, question_id):
-    return HttpResponse("Вы просматриваете вопрос %s." % question_id)
+def claster_filter(request,filter):
+    clast = Project.objects.filter(cluster__pk = filter)
+    clast_json = serializers.serialize('json', clast)
+    return HttpResponse(clast_json, content_type='application/json')
 
-
-def results(request, question_id):
-    response = "Перед вами результаты вопроса %s."
-    return HttpResponse(response % question_id)
-
-
-def vote(request, question_id):
-    return HttpResponse("Вы голосуете за вопрос %s." % question_id)
+@csrf_exempt
+def project_all(request):
+    project = Project.objects.all()
+    project_json = serializers.serialize('json', project)
+    return HttpResponse(project_json, content_type='application/json')
+    
+@csrf_exempt
+def project_filter(request,filter):
+    clast = Project.objects.filter(pk = filter)
+    clast_json = serializers.serialize('json', clast)
+    return HttpResponse(clast_json, content_type='application/json')
