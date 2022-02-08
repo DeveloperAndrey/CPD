@@ -32,6 +32,7 @@
       </header>
       <section class ="intro">
         <div class="container">
+            <div id="filter"></div>
             <div class="contatc-block" id="projects">
                 <!--<div class="inner-content-contact">
                     <h1>Карабельская Юлия Петровна</h1>
@@ -62,16 +63,47 @@
          </div>
 
        </footer>
-
        <script src ="Assets/Frame/node_modules/jquery/dist/jquery.min.js"></script>
        <script src="Assets/code.js"></script>
        <script type="text/javascript">
-       async function getProjects(search = "") {
-            let data = await fetch('http://localhost:8000/polls/project');
+        async function getClaster() {
+            let data = await fetch('http://localhost:8000/polls/claster');
+            let dataUser = await data.json();
+            let ArrClaster = [];
+            $('#filter').html(`
+                <h1>Выберите интересующий Вас кластер:</h1>
+                <label for="all">Все</label>
+                <input id="all" type="checkbox" name="all" checked>
+                `)
+            dataUser.forEach(claster => {
+                $('#filter').append(`
+                    <label for="${claster['fields']['NameClaster']}">${claster['fields']['NameClaster']}</label>
+                    <input id="${claster['fields']['NameClaster']}" type="checkbox" name="${claster['pk']}" checked>
+                `)
+                let id = claster['pk']
+                let value = claster['fields']['NameClaster']
+                ArrClaster.push({'id' : id, 'value' : value}) 
+            })
+
+            $('#projects').html('')
+            ArrClaster.forEach( claster => {
+                getProjects("", claster['id'], claster['value']);
+            })
+            return ArrClaster;
+        }
+
+        let claster = getClaster();
+
+        async function getProjects(search, clasterID, clasterValue) {
+            //let data = await fetch('http://localhost:8000/polls/project');
+            let data = await fetch('http://localhost:8000/polls/claster/' + clasterID);
             let dataUser = await data.json();
             let image = '';
             let discription = '';
-            $('#projects').html('')
+
+            $('#projects').append(`
+                <div class="claster"><p>${clasterValue}</p>
+            `)
             dataUser.forEach((project) => {
                 if(project['fields']['nameProject'].toLowerCase().indexOf(search.toLowerCase()) > -1 ||
                     project['fields']['discription'].toLowerCase().indexOf(search.toLowerCase()) > -1){
@@ -107,15 +139,51 @@
                         `)
                 }
             })
+             $('#projects').append(`
+                </div>
+            `)
 
-            
         }
 
-        $(document).on('keyup', 'input[name="search"]', function(){
-            getProjects($(this).val());
+        $(document).on('change', '#filter input[id="all"]', function(){
+            $('#filter').find("input[type='checkbox']:checked").prop('checked', false);
+            getClaster()
         })
-        getProjects();
-        
+
+        $(document).on('keyup', 'input[name="search"]', async function(){
+            $('#projects').html('')
+            let checkinput = $('#filter').find("input[type='checkbox']:checked")
+            let allinput = $('#filter').find("input[type='checkbox']");
+            if(checkinput.length != allinput.length){ 
+                $('#filter input[id="all"]').prop('checked', false);
+                checkinput = $('#filter').find("input[type='checkbox']:checked") 
+                    for (let i = 0; i < checkinput.length; i++) {
+                    getProjects($(this).val(), checkinput[i].name, checkinput[i].id);
+                }
+            }
+            else {
+                let data = await claster;
+                data.forEach((claster) => {
+                    getProjects($(this).val(), claster['id'], claster['value']);
+                })
+            }
+        })
+
+        $(document).on('change', '#filter input[type="checkbox"]', function(){
+            $('#projects').html('')
+            let checkinput = $('#filter').find("input[type='checkbox']:checked")
+            let allinput = $('#filter').find("input[type='checkbox']");
+            if(checkinput.length != allinput.length){ 
+                $('#filter input[id="all"]').prop('checked', false);
+                checkinput = $('#filter').find("input[type='checkbox']:checked") 
+            }
+            let search = $('input[name="search"]').val()
+            for (let i = 0; i < checkinput.length; i++) {
+                getProjects(search, checkinput[i].name, checkinput[i].id);
+
+            }
+        })
+
        </script>
     </body>
 </html>
