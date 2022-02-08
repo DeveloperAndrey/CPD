@@ -550,6 +550,8 @@ a.inner-content-contact {
     width: 100%;
   }
 
+  .claster:after, .claster:before {display: none;}
+
   .align-intro{
     display: block;
     height: inherit;
@@ -669,3 +671,10 @@ a.inner-content-contact {
 
    .inner-content-contact:nth-child(n+3) {margin: 20px 0;}
 }
+
+.claster {width: 100%; text-align: center; margin-top: 20px; position: relative;}
+.claster:before {content: "";  border: 1px solid;  position: absolute; right: 0; top: 50%; left: 65%; transform: translateY(-50%);}
+.claster:after {content: ""; border: 1px solid;  position: absolute; left: 0; top: 50%;  right: 65%; transform: translateY(-50%);}
+#filter label {font-size: 24px;}  
+#filter {text-align: center;}
+#filter h1 {margin-bottom: 10px;}
