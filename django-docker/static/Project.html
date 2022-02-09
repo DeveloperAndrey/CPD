@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Project</title>
+        <meta charset ="UTF-8">
+        <link href ="Assets/style.css" rel ="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Roboto:wght@500&display=swap" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    </head>
+    <body>
+      <header class = "header">
+          <div class="external-header">
+              <img  class = "decorate-img" src = "Assets/image/Лого.jpg">
+              <nav class="inner-header">
+                  <a class = "decorate-menu" href ="index.html" >Главная</a>
+                  <a class = "decorate-menu" href ="Project.html" >Проекты</a>
+                  <a class = "decorate-menu" href ="Abous us.html" >О нас</a>
+                  <a class = "decorate-menu" href ="contact.html" >Контакты</a>
+              </nav>
+              <input style ="background: url('../Template-TGU/Assets/image/Поиск.svg') no-repeat white;  background-position: 90%;" type = "text" placeholder = "Поиск" class = "decorate-input" name="search">
+              <a id="nav-toggle" href="#"><span></span></a>
+            </div>
+            <div class="hide-menu">
+                <nav class="inner-header-v2">
+                    <a class = "decorate-menu-v2" href ="index.html" >Главная</a>
+                    <a class = "decorate-menu-v2" href ="Project.html" >Проекты</a>
+                    <a class = "decorate-menu-v2" href ="Abous us.html" >О нас</a>
+                    <a class = "decorate-menu-v2" href ="contact.html" >Контакты</a>
+                </nav>
+            </div>
+
+      </header>
+      <section class ="intro">
+        <div class="container">
+            <div id="filter"></div>
+            <div class="contatc-block" id="projects">
+                <!--<div class="inner-content-contact">
+                    <h1>Карабельская Юлия Петровна</h1>
+                    <p>Должность: Директор</p>
+                    <p>Кабинет: Г-417</p>
+                    <p>Телефон: 54-63-14</p>
+                    <p>Email: yu.karabelskaya@tltsu.ru</p>
+                    <p>Подразделение: Центр проектной деятельности</p>
+                </div>
+                <div class="inner-content-contact">
+                    <h1>Целиков Арсений Борисович</h1>
+                    <p>Должность: Специалист (проектная деятельность, трудоустройство)</p>
+                    <p>Кабинет: Г-419</p>
+                    <p>Телефон: 54-63-89</p>
+                    <p>Email: tguproekt@yandex.ru</p>
+                    <p>Подразделение: Центр проектной деятельности</p>
+                </div>-->
+            </div>
+        </div>
+      </section>
+       <footer class ="footer">
+         <div class="container-footer">
+             <img src="Assets/image/ВК.svg">
+             <img src="Assets/image/Инст.svg">
+             <img src="Assets/image/Телега.svg">
+             <img src="Assets/image/Телефон.svg">
+             <p>Ул. Белорусская, д. 14, каб. Г419, Пн-Пт 8:15-12:30, 13:15-17:00</p>
+         </div>
+
+       </footer>
+       <script src ="Assets/Frame/node_modules/jquery/dist/jquery.min.js"></script>
+       <script src="Assets/code.js"></script>
+       <script type="text/javascript">
+        async function getClaster() {
+            let data = await fetch('http://localhost:8000/polls/claster');
+            let dataUser = await data.json();
+            let ArrClaster = [];
+            $('#filter').html(`
+                <h1>Выберите интересующий Вас кластер:</h1>
+                <label for="all">Все</label>
+                <input id="all" type="checkbox" name="all" checked>
+                `)
+            dataUser.forEach(claster => {
+                $('#filter').append(`
+                    <label for="${claster['fields']['NameClaster']}">${claster['fields']['NameClaster']}</label>
+                    <input id="${claster['fields']['NameClaster']}" type="checkbox" name="${claster['pk']}" checked>
+                `)
+                let id = claster['pk']
+                let value = claster['fields']['NameClaster']
+                ArrClaster.push({'id' : id, 'value' : value}) 
+            })
+
+            $('#projects').html('')
+            ArrClaster.forEach( claster => {
+                getProjects("", claster['id'], claster['value']);
+            })
+            return ArrClaster;
+        }
+
+        let claster = getClaster();
+
+        async function getProjects(search, clasterID, clasterValue) {
+            //let data = await fetch('http://localhost:8000/polls/project');
+            let data = await fetch('http://localhost:8000/polls/claster/' + clasterID);
+            let dataUser = await data.json();
+            let image = '';
+            let discription = '';
+
+            $('#projects').append(`
+                <div class="claster"><p>${clasterValue}</p>
+            `)
+            dataUser.forEach((project) => {
+                if(project['fields']['nameProject'].toLowerCase().indexOf(search.toLowerCase()) > -1 ||
+                    project['fields']['discription'].toLowerCase().indexOf(search.toLowerCase()) > -1){
+                    if(project['fields']['image'] == "") image = `
+                        <div class="no-photo-project">
+                            <div class="text-inner-project">
+                               <p id ="text1">Фото</p>
+                               <p >Проекта</p>
+                            </div>
+                        </div>`;
+                    else image = `
+                        <div class="photo-project">
+                            <img src="django-docker/${project['fields']['image']}"> 
+                        </div>`;
+                    discription = project['fields']['discription']
+
+                    if (discription.length >= 100) {
+                        discription = discription.substring(0, 100);
+                        let lastIndex = discription.lastIndexOf(" ");
+                        discription = discription.substring(0, lastIndex) + '...';
+                    }
+
+                    $('#projects').append(`
+
+                            <a href="Project deteil.html?id=${project['pk']}" class="inner-content-contact">
+                                <!--${image}-->
+                                <h1>${project['fields']['nameProject']}</h1>
+                                <p>О проекте: ${discription}</p>
+                                <p>Набор: ${project['fields']['course']}</p>
+                                <p>Ответственное лицо: ${project['fields']['supervisor']}</p>
+                                <p>Контакты: ${project['fields']['contact']}</p>
+                            </a>
+                        `)
+                }
+            })
+             $('#projects').append(`
+                </div>
+            `)
+
+        }
+
+        $(document).on('change', '#filter input[id="all"]', function(){
+            $('#filter').find("input[type='checkbox']:checked").prop('checked', false);
+            getClaster()
+        })
+
+        $(document).on('keyup', 'input[name="search"]', async function(){
+            $('#projects').html('')
+            let checkinput = $('#filter').find("input[type='checkbox']:checked")
+            let allinput = $('#filter').find("input[type='checkbox']");
+            if(checkinput.length != allinput.length){ 
+                $('#filter input[id="all"]').prop('checked', false);
+                checkinput = $('#filter').find("input[type='checkbox']:checked") 
+                    for (let i = 0; i < checkinput.length; i++) {
+                    getProjects($(this).val(), checkinput[i].name, checkinput[i].id);
+                }
+            }
+            else {
+                let data = await claster;
+                data.forEach((claster) => {
+                    getProjects($(this).val(), claster['id'], claster['value']);
+                })
+            }
+        })
+
+        $(document).on('change', '#filter input[type="checkbox"]', function(){
+            $('#projects').html('')
+            let checkinput = $('#filter').find("input[type='checkbox']:checked")
+            let allinput = $('#filter').find("input[type='checkbox']");
+            if(checkinput.length != allinput.length){ 
+                $('#filter input[id="all"]').prop('checked', false);
+                checkinput = $('#filter').find("input[type='checkbox']:checked") 
+            }
+            let search = $('input[name="search"]').val()
+            for (let i = 0; i < checkinput.length; i++) {
+                getProjects(search, checkinput[i].name, checkinput[i].id);
+
+            }
+        })
+
+       </script>
+    </body>
+</html>
